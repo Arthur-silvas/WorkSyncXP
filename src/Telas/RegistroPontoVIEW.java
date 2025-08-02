@@ -1,30 +1,39 @@
 package Telas;
 
+import Classes.Funcionarios;
 import Classes.Registro_horas;
 import Sistemas.Registro_horasDAO;
+import Sistemas.Sessao;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalUnit;
 import java.util.Date;
+import javax.swing.JOptionPane;
 
+/**
+ *
+ * @author Arthur
+ */
 public class RegistroPontoVIEW extends javax.swing.JFrame {
-    Registro_horasDAO registroDao = new Registro_horasDAO();
-    Registro_horas registroHoras = new Registro_horas();
 
+    Registro_horas registroHoras = new Registro_horas();
+    Registro_horasDAO dao = new Registro_horasDAO();
+    Funcionarios atual = Sessao.getUsuarioLogado();
+
+    private LocalDateTime agora;
     private LocalTime horarioIncial;
     private LocalTime horarioFinal;
-    private LocalTime horasExtras;
     private LocalTime horasTrabalhadas;
-    
+
     public RegistroPontoVIEW() {
         initComponents();
-        dataAtualSistema();
+        dataHoraAtual();
         horarioAtualSistema();
     }
-
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -32,7 +41,7 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         btnVoltar = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        lblDataAtual = new javax.swing.JLabel();
+        lblDataHoraAtual = new javax.swing.JLabel();
         lblEntrada = new javax.swing.JLabel();
         lblSaida = new javax.swing.JLabel();
         txtHorarioEnt = new javax.swing.JTextField();
@@ -41,7 +50,6 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
         txtHorasTrabalhadas = new javax.swing.JTextField();
         lblbancoH = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        lblHoraAtual = new javax.swing.JLabel();
         btnFinalizar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -80,9 +88,9 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Data e hora de acesso ao sistema:");
 
-        lblDataAtual.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        lblDataAtual.setForeground(new java.awt.Color(255, 255, 255));
-        lblDataAtual.setText("lblDataAtual");
+        lblDataHoraAtual.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblDataHoraAtual.setForeground(new java.awt.Color(255, 255, 255));
+        lblDataHoraAtual.setText("lblDataAtual");
 
         lblEntrada.setBackground(new java.awt.Color(204, 204, 204));
         lblEntrada.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
@@ -121,10 +129,6 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("Sem registro de horas extras*");
 
-        lblHoraAtual.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        lblHoraAtual.setForeground(new java.awt.Color(255, 255, 255));
-        lblHoraAtual.setText("lblHorárioAtual");
-
         btnFinalizar.setBackground(new java.awt.Color(51, 51, 51));
         btnFinalizar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnFinalizar.setForeground(new java.awt.Color(204, 204, 204));
@@ -145,10 +149,7 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
                         .addGap(82, 82, 82)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(lblDataAtual)
-                                .addGap(99, 99, 99)
-                                .addComponent(lblHoraAtual))))
+                            .addComponent(lblDataHoraAtual)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -182,9 +183,7 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
                 .addGap(79, 79, 79)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblDataAtual)
-                    .addComponent(lblHoraAtual))
+                .addComponent(lblDataHoraAtual)
                 .addGap(100, 100, 100)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblEntrada)
@@ -229,15 +228,43 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVoltarActionPerformed
 
     private void btnFinalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizarActionPerformed
-        LocalTime novaHora = LocalTime.now();
-        String horaFormatada = novaHora.toString().substring(0, 8);
-        txtHorarioSai.setText(horaFormatada);
-        conversaoDeTipos();
-        
-        long tempoTotal = registroDao.Cal_horas_trabalhadas(registroHoras);
-        txtHorasTrabalhadas.setText(String.valueOf(tempoTotal));
-    }//GEN-LAST:event_btnFinalizarActionPerformed
+        // Pega a hora atual do sistema
+        LocalTime horarioFinal = LocalTime.now();
 
+        // Atualiza o campo txtHorarioSai com a hora atual formatada
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        txtHorarioSai.setText(horarioFinal.format(formatter));
+
+        // Pega o horário inicial do campo txtHorarioEnt
+        LocalTime horarioInicial;
+        try {
+            horarioInicial = LocalTime.parse(txtHorarioEnt.getText(), formatter);
+        } catch (DateTimeParseException e) {
+            JOptionPane.showMessageDialog(null, "Formato do horário inválido em Horário Entrada.");
+            return;
+        }
+
+        // Calcula a duração
+        Duration duracao = Duration.between(horarioInicial, horarioFinal);
+        long horas = duracao.toHours();
+        long minutos = duracao.toMinutesPart();
+        long segundos = duracao.toSecondsPart();
+
+        String tempoTotal = String.format("%02d:%02d:%02d", horas, minutos, segundos);
+        txtHorasTrabalhadas.setText(tempoTotal);
+
+        // Setando dados no objeto
+        registroHoras.setFuncionario_id(atual.getId());
+        registroHoras.setData_registro(dataAtualSistema());
+        registroHoras.setHorario_entrada(horarioInicial);
+        registroHoras.setHorario_saida(horarioFinal);
+
+        // Salva no banco
+        dao.salvar(registroHoras);
+        
+        JOptionPane.showMessageDialog(this, "Ponto finalizado");
+        this.dispose();
+    }//GEN-LAST:event_btnFinalizarActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -278,9 +305,8 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JLabel lblDataAtual;
+    private javax.swing.JLabel lblDataHoraAtual;
     private javax.swing.JLabel lblEntrada;
-    private javax.swing.JLabel lblHoraAtual;
     private javax.swing.JLabel lblHorasT;
     private javax.swing.JLabel lblSaida;
     private javax.swing.JLabel lblbancoH;
@@ -288,29 +314,40 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
     private javax.swing.JTextField txtHorarioSai;
     private javax.swing.JTextField txtHorasTrabalhadas;
     // End of variables declaration//GEN-END:variables
-    
+
     //recebe a data atual da máquina do usuário
-    public void dataAtualSistema() {
-        Date dataHoraAtual = new Date();
-        String dataFormatada = new SimpleDateFormat("dd/MM/yyyy").format(dataHoraAtual);
-        lblDataAtual.setText(dataFormatada);//muda o lblDataAtual para data da máquina de acordo com a execução
+    public Date dataAtualSistema() {
+        return new Date();
     }
-    
+
     //recebe o horário atual da máquina do usuário
     public void horarioAtualSistema() {
         LocalTime horaAtual = LocalTime.now();
         String horaFormatada = horaAtual.toString().substring(0, 8);
-        lblHoraAtual.setText(horaFormatada); //muda o lblHoraAtual para o horário da máquina de acordo com a execução
         txtHorarioEnt.setText(horaFormatada);
     }
-    
-    public void conversaoDeTipos(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        horarioIncial = LocalTime.parse(txtHorarioEnt.getText(), formatter);
-        horarioFinal = LocalTime.parse(txtHorarioSai.getText(), formatter);
-        
-        //passando valores para classe Registro_horas
-        registroHoras.setHorario_entrada(horarioIncial);
-        registroHoras.setHorario_saida(horarioFinal);
+
+    //Set nos atributos horario de entrada/saída
+    public void conversaoDeTipos() {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+            LocalTime horarioIncial = LocalTime.parse(txtHorarioEnt.getText(), formatter);
+            LocalTime horarioFinal = LocalTime.parse(txtHorarioSai.getText(), formatter);
+
+            registroHoras.setHorario_entrada(horarioIncial);
+            registroHoras.setHorario_saida(horarioFinal);
+
+        } catch (DateTimeParseException e) {
+            JOptionPane.showMessageDialog(null, "Formato do horário inválido. Use HH:mm:ss.");
+        }
+    }
+
+    //recebe a data e o horário atual da máquina do usuário
+    public void dataHoraAtual() {
+        agora = LocalDateTime.now();
+        //formatando a saída data e horário
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        String dataHoraFormatada = agora.format(formatter);
+        lblDataHoraAtual.setText(dataHoraFormatada);
     }
 }

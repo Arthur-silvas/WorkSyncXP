@@ -1,11 +1,16 @@
 package Classes;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
+/**
+ *
+ * @author Arthur
+ */
 public class Relatorios {
     private int id;
     private int funcionarios_id;
-    private Date data_geracao;
+    private LocalDateTime data_geracao;
     private String descricao; 
 
     public int getId() {
@@ -24,11 +29,11 @@ public class Relatorios {
         this.funcionarios_id = funcionarios_id;
     }
 
-    public Date getData_geracao() {
+    public LocalDateTime getData_geracao() {
         return data_geracao;
     }
 
-    public void setData_geracao(Date data_geracao) {
+    public void setData_geracao(LocalDateTime data_geracao) {
         this.data_geracao = data_geracao;
     }
 

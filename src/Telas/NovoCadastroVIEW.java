@@ -1,15 +1,20 @@
 package Telas;
 
+import Classes.Cargos;
 import Classes.Funcionarios;
 import Sistemas.FuncionariosDAO;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import javax.swing.JOptionPane;
 
+/**
+ *
+ * @author Arthur
+ */
 public class NovoCadastroVIEW extends javax.swing.JFrame {
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-    private int id = 1; 
+    Funcionarios funcionario = new Funcionarios();
+    FuncionariosDAO dao = new FuncionariosDAO();
+
+    private Funcionarios funcionarioEmEdicao; // Variável para guardar o objeto a ser editado
     private String nome;
     private String dataNascimento;
     private String rg;
@@ -19,12 +24,35 @@ public class NovoCadastroVIEW extends javax.swing.JFrame {
     private String email;
     private String exame;
     private String cargo;
+    private int cargo_id;
 
-    
     FuncionariosDAO funcionarioDao = new FuncionariosDAO();
 
+    // Construtor para NOVO cadastro
     public NovoCadastroVIEW() {
         initComponents();
+        dao.comboBoxDB(cmbCargo);
+
+    }
+
+    // Construtor para EDIÇÃO de um cadastro existente
+    public NovoCadastroVIEW(java.awt.Frame parent, boolean modal, Funcionarios funcionarioParaEditar) {
+        this();
+        this.funcionarioEmEdicao = funcionarioParaEditar;
+        preencherCampos(funcionarioParaEditar);
+    }
+
+    private void preencherCampos(Funcionarios funcionario) {
+        txtNome.setText(funcionario.getNome().trim());
+        txtDataNasc.setText(funcionario.getDataNasc().trim());
+        txtRg.setText(funcionario.getRg().trim());
+        txtCpf.setText(funcionario.getCpf().trim());
+        txtTelefone.setText(funcionario.getTelefone().trim());
+        txtEndereco.setText(funcionario.getEndereco().trim());
+        txtEmail.setText(funcionario.getEmail().trim());
+
+        //Alterando botão finalizar para Salvar
+        btnFinalizar.setText("Salvar Alterações");
     }
 
     @SuppressWarnings("unchecked")
@@ -67,11 +95,6 @@ public class NovoCadastroVIEW extends javax.swing.JFrame {
         lblTitulo.setText("Cadastro");
 
         txtNome.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        txtNome.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtNomeActionPerformed(evt);
-            }
-        });
 
         txtDataNasc.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
@@ -84,10 +107,9 @@ public class NovoCadastroVIEW extends javax.swing.JFrame {
         txtEmail.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
         cmbExame.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        cmbExame.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Sem registro", "Registrado" }));
+        cmbExame.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Sem registro", "Exame admissional", "Exame periódico" }));
 
         cmbCargo.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        cmbCargo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Desenvolvedor(a)", "Gerente", "Gestor(a)", "Secreatário(a)", "Funcionário(a)" }));
 
         btnFinalizar.setBackground(new java.awt.Color(8, 131, 30));
         btnFinalizar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -267,48 +289,68 @@ public class NovoCadastroVIEW extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtNomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNomeActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtNomeActionPerformed
-
     private void btnVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVoltarActionPerformed
         this.dispose();
     }//GEN-LAST:event_btnVoltarActionPerformed
 
     private void btnFinalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizarActionPerformed
-        try{
-        nome = txtNome.getText();
-        dataNascimento = txtDataNasc.getText();
-        rg = txtRg.getText();
-        cpf = txtCpf.getText();
-        tel = txtTelefone.getText();
-        endereco = txtEndereco.getText();
-        email = txtEmail.getText();
-        exame = cmbExame.getSelectedItem().toString();
-        cargo = cmbCargo.getSelectedItem().toString();
-        
-        if(EmptyFilds() == false){
-            Funcionarios funcionario = new Funcionarios();
-            funcionario.setNome(nome);
-            funcionario.setDataNasc(dataNascimento);
-            funcionario.setRg(rg);
-            funcionario.setCpf(cpf);
-            funcionario.setTelefone(tel);
-            funcionario.setEmail(email);
-            funcionario.setRegistro_exame(exame);
-            funcionario.setCargo_id(1);
-            funcionario.setId(id++);
-            funcionarioDao.cadastrar(funcionario);
-            JOptionPane.showMessageDialog(this, "Cadastro concluído!");
-            limparCampos();
-            
-            
-        }
-        }catch(Exception e){
-            JOptionPane.showMessageDialog(this, "Erro ao cadastrar");
+        try {
+            nome = txtNome.getText().trim();
+            dataNascimento = txtDataNasc.getText().trim();
+            rg = txtRg.getText().trim();
+            cpf = txtCpf.getText().trim();
+            tel = txtTelefone.getText().trim();
+            endereco = txtEndereco.getText().trim();
+            email = txtEmail.getText().trim();
+            exame = cmbExame.getSelectedItem() != null ? cmbExame.getSelectedItem().toString() : "";
+
+            Cargos selecionado = (Cargos) cmbCargo.getSelectedItem();
+            int cargo_id = -1; // Valor padrão para indicar que não foi selecionado
+            if (selecionado != null) {
+                cargo_id = selecionado.getId();
+            }
+
+            if (EmptyFilds() == false) {
+
+                // Se a tela estiver em modo de edição
+                if (this.funcionarioEmEdicao != null) {
+                    this.funcionarioEmEdicao.setNome(nome);
+                    this.funcionarioEmEdicao.setDataNasc(dataNascimento);
+                    this.funcionarioEmEdicao.setRg(rg);
+                    this.funcionarioEmEdicao.setCpf(cpf);
+                    this.funcionarioEmEdicao.setTelefone(tel);
+                    this.funcionarioEmEdicao.setEndereco(endereco);
+                    this.funcionarioEmEdicao.setEmail(email);
+                    this.funcionarioEmEdicao.setRegistro_exame(exame);
+                    this.funcionarioEmEdicao.setCargo_id(cargo_id);
+                    dao.Editar(this.funcionarioEmEdicao); // Chamando o método de edição
+
+                    JOptionPane.showMessageDialog(this, "Cadastro atualizado com sucesso!");
+
+                } else { // Se a tela estiver em modo de novo cadastro
+                    Funcionarios novoFuncionario = new Funcionarios();
+                    novoFuncionario.setNome(nome);
+                    novoFuncionario.setDataNasc(dataNascimento);
+                    novoFuncionario.setRg(rg);
+                    novoFuncionario.setCpf(cpf);
+                    novoFuncionario.setTelefone(tel);
+                    novoFuncionario.setEndereco(endereco);
+                    novoFuncionario.setEmail(email);
+                    novoFuncionario.setRegistro_exame(exame);
+                    novoFuncionario.setCargo_id(cargo_id);
+
+                    dao.salvar(novoFuncionario);
+
+                    JOptionPane.showMessageDialog(this, "Operação concluída!");
+                }
+
+                limparCampos();
+                this.dispose();
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao cadastrar ou editar: " + e.getMessage());
         }
     }//GEN-LAST:event_btnFinalizarActionPerformed
-
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -378,30 +420,31 @@ public class NovoCadastroVIEW extends javax.swing.JFrame {
                 || cpf.isEmpty()
                 || tel.isEmpty()
                 || endereco.isEmpty()
-                || email.isEmpty()){
+                || email.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Preencha todos os campos para\nfinalizar");
-        }else{
-            boolean RegexData = dataNascimento.matches("[0-9]{2}[/][0-9]{2}[/][0-9]{4}");
-            boolean RegexRg = rg.matches("^[0-9]{1,2}\\.?[0-9]{3}\\.?[0-9]{3}-?[0-9Xx]$");
-            boolean RegexCpf = cpf.matches("^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$");
-            boolean RegexTel = tel.matches("^\\(?\\d{2}\\)?[\\s-]?\\d{4,5}-?\\d{4}$");
-            
-            if(RegexData == false){
-                JOptionPane.showMessageDialog(this, "Preencha a data no formato \ndd/mm/aaaa");
-            }else if(RegexRg == false){
-                JOptionPane.showMessageDialog(this, "Preencha o rg no formato \nXX.XXX.XXX-X");
-            }else if(RegexCpf == false){
-                JOptionPane.showMessageDialog(this, "Preencha o cpf no formato \nXXX.XXX.XXX-XX");
-            }else if(RegexTel == false){
-                JOptionPane.showMessageDialog(this, "Preencha o telefone no formato \n(XX) XXXXX-XXXX");
-            }else{
+        } else {
+            boolean RegexData = dataNascimento.matches("[0-9]{4}[/][0-9]{2}[/][0-9]{2}");
+            boolean RegexRg = rg.matches("^\\d{9}$");
+            boolean RegexCpf = cpf.matches("^\\d{11}$");
+            boolean RegexTel = tel.matches("^\\d{5}-\\d{4}$");
+
+            if (RegexData == false) {
+                JOptionPane.showMessageDialog(this, "Preencha a data no formato \n(aaaa/mm/dd)");
+            } else if (RegexRg == false) {
+                JOptionPane.showMessageDialog(this, "Preencha o RG com\n(9 dígitos numéricos)");
+            } else if (RegexCpf == false) {
+                JOptionPane.showMessageDialog(this, "Preencha o CPF com\n(11 dígitos numéricos)");
+            } else if (RegexTel == false) {
+                JOptionPane.showMessageDialog(this, "Preencha o telefone no formato \n(XXXXX-XXXX)");
+            } else {
+
                 empty = false;
             }
         }
         return empty;
     }
-    
-    public void limparCampos(){
+
+    public void limparCampos() {
         txtNome.setText("");
         txtDataNasc.setText("");
         txtRg.setText("");
@@ -409,6 +452,6 @@ public class NovoCadastroVIEW extends javax.swing.JFrame {
         txtEmail.setText("");
         txtTelefone.setText("");
         txtEndereco.setText("");
-                
+
     }
 }

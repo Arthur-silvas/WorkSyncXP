@@ -1,23 +1,56 @@
 package Telas;
 
+import Classes.Funcionarios;
 import Classes.Relatorios;
 import Sistemas.RelatoriosDAO;
+import Sistemas.Sessao;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
+/**
+ *
+ * @author Arthur
+ */
 public class RelatorioVIEW extends javax.swing.JFrame {
 
-    RelatoriosDAO relatorioDao = new RelatoriosDAO();
-    private int id = 1; 
+    Relatorios relatorio = new Relatorios();
+    RelatoriosDAO dao = new RelatoriosDAO();
+
+    public void preencherTabela() {
+
+        List<Relatorios> listaRelatorios = dao.getRelatorios();
+
+        DefaultTableModel tabelaRelatorios = (DefaultTableModel) tblRelatorio.getModel();
+        tabelaRelatorios.setNumRows(0);
+
+        tblRelatorio.setRowSorter(new TableRowSorter(tabelaRelatorios));
+
+        for (Relatorios r : listaRelatorios) {
+
+            Object[] obj = new Object[]{
+                r.getId(),
+                r.getFuncionarios_id(),
+                r.getData_geracao(),
+                r.getDescricao(),};
+            tabelaRelatorios.addRow(obj);
+        }
+
+    }
+
+    private int id = 1;
     private String assunto;
     private String descricao;
     private Date dataGeracao;
 
     public RelatorioVIEW() {
         initComponents();
-        listar();
+        preencherTabela();
     }
 
     /**
@@ -52,12 +85,6 @@ public class RelatorioVIEW extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(0, 0, 0));
         jLabel2.setText("Assunto: ");
 
-        txtAssunto.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtAssuntoActionPerformed(evt);
-            }
-        });
-
         jPanel3.setBackground(new java.awt.Color(204, 204, 204));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Registrar Relatório"));
 
@@ -86,9 +113,17 @@ public class RelatorioVIEW extends javax.swing.JFrame {
 
             },
             new String [] {
-                "ID", "Nome", "Relatório", "Data de geração"
+                "ID", "ID do funcionário", "Relatório", "Data de geração"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.Object.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
         jScrollPane2.setViewportView(tblRelatorio);
 
         btnRegistrar.setBackground(new java.awt.Color(19, 63, 146));
@@ -190,27 +225,25 @@ public class RelatorioVIEW extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtAssuntoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtAssuntoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtAssuntoActionPerformed
-
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void btnRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarActionPerformed
         try {
-
+            LocalDateTime meuLocalDateTime = LocalDateTime.now();
             dataGeracao = new Date();
             assunto = txtAssunto.getText();
             descricao = txaDescriacao.getText();
             if (emptyFilds() == false) {
-                Relatorios relatorios = new Relatorios();
-                relatorios.setId(id++);
-                relatorios.setData_geracao(dataGeracao);
-                relatorios.setDescricao(assunto.toUpperCase()+ ": " + descricao);
-                relatorioDao.registrar(relatorios);
+                Funcionarios atual = Sessao.getUsuarioLogado();
+                relatorio.setFuncionarios_id(atual.getId());
+                relatorio.setData_geracao(meuLocalDateTime);
+                relatorio.setDescricao(assunto.toUpperCase() + ": " + descricao);
+                dao.salvar(relatorio);
+
                 JOptionPane.showMessageDialog(this, "Registro concluído");
+                this.dispose();
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro");
@@ -278,8 +311,4 @@ public class RelatorioVIEW extends javax.swing.JFrame {
         return empty;
     }
 
-    public void listar() {
-        Relatorios relatorio = new Relatorios();
-        relatorioDao.listar(tblRelatorio);
-    }
 }

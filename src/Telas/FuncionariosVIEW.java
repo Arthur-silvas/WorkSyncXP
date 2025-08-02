@@ -1,15 +1,45 @@
 package Telas;
 
+import Classes.Funcionarios;
 import Sistemas.FuncionariosDAO;
+import Sistemas.Sessao;
+import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 public class FuncionariosVIEW extends javax.swing.JFrame {
 
-    FuncionariosDAO funcionarioDAO = new FuncionariosDAO();
+    Funcionarios funcionario = new Funcionarios();
+    FuncionariosDAO dao = new FuncionariosDAO();
+
+    public void preencherTabela() {
+
+        List<Funcionarios> listaFuncionarios = dao.getFucionarios();
+
+        DefaultTableModel tabelaFuncionarios = (DefaultTableModel) tblFuncionarios.getModel();
+        tabelaFuncionarios.setNumRows(0);
+
+        tblFuncionarios.setRowSorter(new TableRowSorter(tabelaFuncionarios));
+
+        for (Funcionarios f : listaFuncionarios) {
+
+            Object[] obj = new Object[]{
+                f.getId(),
+                f.getNome(),
+                f.getDataNasc(),
+                f.getTelefone(),
+                f.getEmail(),
+                f.getCargo_id()};
+            tabelaFuncionarios.addRow(obj);
+        }
+
+    }
 
     public FuncionariosVIEW() {
         initComponents();
-        listarTabela();
+        aprovacao();
+        preencherTabela();
     }
 
     @SuppressWarnings("unchecked")
@@ -108,6 +138,7 @@ public class FuncionariosVIEW extends javax.swing.JFrame {
         btnExcluir.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnExcluir.setForeground(new java.awt.Color(255, 255, 255));
         btnExcluir.setText("Excluir");
+        btnExcluir.setToolTipText("Somente gerente");
         btnExcluir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnExcluirActionPerformed(evt);
@@ -138,6 +169,7 @@ public class FuncionariosVIEW extends javax.swing.JFrame {
         btnAtualizar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAtualizar.setForeground(new java.awt.Color(255, 255, 255));
         btnAtualizar.setText("Atualizar");
+        btnAtualizar.setToolTipText("Somente gerente");
         btnAtualizar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAtualizarActionPerformed(evt);
@@ -212,48 +244,94 @@ public class FuncionariosVIEW extends javax.swing.JFrame {
 
     private void btnAtualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtualizarActionPerformed
         try {
+            // Verifica se há uma linha selecionada na tabela
             if (tblFuncionarios.getSelectedRow() >= 0) {
-            }else{
-                JOptionPane.showMessageDialog(this, "Selecione uma usuário");
+
+                // 1. Obtém o ID da linha selecionada
+                int id = Integer.parseInt(tblFuncionarios.getValueAt(tblFuncionarios.getSelectedRow(), 0).toString());
+
+                // 2. Busca o funcionário no banco de dados com base no ID
+                FuncionariosDAO dao = new FuncionariosDAO();
+                Funcionarios funcionarioParaEditar = dao.buscarPorId(id); // Você precisará criar este método no seu DAO
+
+                // 3. Verifica se o funcionário foi encontrado e abre a tela de edição
+                if (funcionarioParaEditar != null) {
+                    NovoCadastroVIEW telaCadastro = new NovoCadastroVIEW(this, true, funcionarioParaEditar);
+
+                    // Exibe a tela
+                    telaCadastro.setVisible(true);
+
+                } else {
+                    JOptionPane.showMessageDialog(this, "Funcionário não encontrado no banco de dados.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Selecione um usuário para editar.");
             }
-        } catch (Exception e){
-            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ocorreu uma falha: " + e.getMessage());
+            e.printStackTrace();
         }
     }//GEN-LAST:event_btnAtualizarActionPerformed
 
     private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
-        try{
-          if(tblFuncionarios.getSelectedRow() >= 0){ //verifica se há algo selecionado na tabela
-              //obtém o valor da coluna id da linha selecionada
-              String id = (String)tblFuncionarios.getValueAt(tblFuncionarios.getSelectedRow(), 0);
-              //janela de confirmação
-              int resposta = JOptionPane.showConfirmDialog(this, "Deseja mesmo excluir o registro " + id + "?");
-              if(resposta == 0)//0- yes, 1- no, 2- cancel
-              {   
-                  //realizando a exclusão
-                  FuncionariosDAO funcionariosDAO = new FuncionariosDAO();            
-                  //funcionariosDAO.excluir(Integer.parseInt(id));
-                  JOptionPane. showMessageDialog(this, "Registro excluído com sucesso");
-                  //refazendo a pesquisa para atualizar a tabela na tela
-                  //btnPesquisarActionPerformed(evt);
-              }
-          }else{
-              JOptionPane.showMessageDialog(this, "Selecione uma usuário");
-          }
-      }catch(Exception e){
-          JOptionPane.showMessageDialog(this, "Ocorreu uma falha:\n" + e.getMessage());
-      }
+        try {
+            Funcionarios atual = Sessao.getUsuarioLogado();
+            if (tblFuncionarios.getSelectedRow() >= 0) { //verifica se há algo selecionado na tabela
+                //obtém o valor da coluna id da linha selecionada
+                String id = String.valueOf(tblFuncionarios.getValueAt(tblFuncionarios.getSelectedRow(), 0));
+                //janela de confirmação
+                int resposta = JOptionPane.showConfirmDialog(this, "Deseja mesmo excluir o registro " + id + "?");
+                if (resposta == 0)//0- yes, 1- no, 2- cancel
+                {
+                    if (atual.getId() == Integer.parseInt(id)) {
+                        JOptionPane.showMessageDialog(this, "Você não poder excluir um usuário\nestando logado");
+                    } else {
+                        //realizando a exclusão
+                        FuncionariosDAO funcionariosDAO = new FuncionariosDAO();
+                        funcionariosDAO.excluir(Integer.parseInt(id));
+                        JOptionPane.showMessageDialog(this, "Registro excluído com sucesso");
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Selecione um usuário");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Ocorreu uma falha:\n" + e.getMessage());
+        }
     }//GEN-LAST:event_btnExcluirActionPerformed
 
     private void btnPesquisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPesquisarActionPerformed
-        if(txtPesquisar.getText().isEmpty()){
-            JOptionPane.showMessageDialog(this, "Preencha o campo de pesquisa");
+
+        String textoPesquisa = txtPesquisar.getText();
+
+        DefaultTableModel model = (DefaultTableModel) tblFuncionarios.getModel();
+        model.setRowCount(0);
+
+        if (textoPesquisa.isEmpty()) {
+            preencherTabela();
+            JOptionPane.showMessageDialog(this, "Preencha o campo de pesquisa.");
+        } else {
+            Funcionarios f = dao.pesquisarFuncionarios(textoPesquisa);
+
+            if (f != null) {
+                model.addRow(new Object[]{
+                    f.getId(),
+                    f.getNome(),
+                    f.getDataNasc(),
+                    f.getTelefone(),
+                    f.getEmail(),
+                    f.getCargo_id()});
+
+            } else {
+                // Exibe uma mensagem se o funcionário não for encontrado
+                JOptionPane.showMessageDialog(this, "Funcionário não encontrado.");
+            }
         }
     }//GEN-LAST:event_btnPesquisarActionPerformed
 
     /**
-         * @param args the command line arguments
-         */
+     * @param args the command line arguments
+     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -302,7 +380,17 @@ public class FuncionariosVIEW extends javax.swing.JFrame {
     private javax.swing.JTextField txtPesquisar;
     // End of variables declaration//GEN-END:variables
 
-    public void listarTabela() {
-        funcionarioDAO.listarDados(tblFuncionarios);
+    public void aprovacao() {
+        Funcionarios atual = Sessao.getUsuarioLogado();
+
+        // Se o cargo_id for 2 (Gerente), o botão fica habilitado (padrão)
+        if (atual.getCargo_id() == 2) {
+            this.btnExcluir.setEnabled(true);
+            this.btnAtualizar.setEnabled(true);
+        } else {
+            // Caso contrário, o botão é desabilitado
+            this.btnExcluir.setEnabled(false);
+            this.btnAtualizar.setEnabled(false);
+        }
     }
 }

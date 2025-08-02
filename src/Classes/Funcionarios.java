@@ -3,6 +3,10 @@ package Classes;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ *
+ * @author Arthur
+ */
 public class Funcionarios {
 
     private int id;
@@ -16,7 +20,6 @@ public class Funcionarios {
     private String registro_exame;
     private int cargo_id;
 
-    
     //Tela de Funcionários
     public Funcionarios(int id, String nome, String dataNasc, String telefone, String email, int cargo_id) {
         this.id = id;
@@ -40,7 +43,7 @@ public class Funcionarios {
         this.registro_exame = registro_exame;
         this.cargo_id = cargo_id;
     }
-    
+
     //Construtor vazio
     public Funcionarios() {
     }
@@ -125,6 +128,7 @@ public class Funcionarios {
         this.cargo_id = cargo_id;
     }
 
+    @Override
     public String toString() {
         return "Id: " + id + " Nome: " + nome + ", Data de Nascimento: " + dataNasc + ", RG: " + rg + ", CPF: " + cpf
                 + ", Endereço: " + endereco + ", Email: " + email + ", Registro Exame: " + registro_exame + ", Cargo_id: " + cargo_id;

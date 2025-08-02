@@ -49,11 +49,7 @@
                           <EmptySpace min="-2" pref="82" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                              <Group type="102" attributes="0">
-                                  <Component id="lblDataAtual" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="99" max="-2" attributes="0"/>
-                                  <Component id="lblHoraAtual" min="-2" max="-2" attributes="0"/>
-                              </Group>
+                              <Component id="lblDataHoraAtual" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
@@ -101,10 +97,7 @@
                   <EmptySpace min="-2" pref="79" max="-2" attributes="0"/>
                   <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="lblDataAtual" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="lblHoraAtual" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="lblDataHoraAtual" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="100" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="lblEntrada" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -187,7 +180,7 @@
             <Property name="text" type="java.lang.String" value="Data e hora de acesso ao sistema:"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="lblDataAtual">
+        <Component class="javax.swing.JLabel" name="lblDataHoraAtual">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Segoe UI" size="18" style="0"/>
@@ -289,17 +282,6 @@
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Sem registro de horas extras*"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JLabel" name="lblHoraAtual">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="18" style="0"/>
-            </Property>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="ff" green="ff" red="ff" type="rgb"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="lblHor&#xe1;rioAtual"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="btnFinalizar">

@@ -1,14 +1,45 @@
 package Telas;
 
 import Classes.Ferias_licencas;
+import Classes.Funcionarios;
 import Sistemas.Ferias_licencasDAO;
+import Sistemas.Sessao;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 public class AfastamentoVIEW extends javax.swing.JFrame {
-    Ferias_licencasDAO afastamentoDAO = new Ferias_licencasDAO();
-    
+
+    Ferias_licencas afastamento = new Ferias_licencas();
+    Ferias_licencasDAO dao = new Ferias_licencasDAO();
+
+    public void preencherTabela() {
+
+        List<Ferias_licencas> listaAfastamentos = dao.getAfastamento();
+
+        DefaultTableModel tabelaAfastamento = (DefaultTableModel) tblAfastamento.getModel();
+        tabelaAfastamento.setNumRows(0);
+
+        tblAfastamento.setRowSorter(new TableRowSorter(tabelaAfastamento));
+
+        for (Ferias_licencas f : listaAfastamentos) {
+
+            Object[] obj = new Object[]{
+                f.getId(),
+                f.getFuncionarios_id(),
+                f.getTipo_afastamento(),
+                f.getData_incial(),
+                f.getData_final(),
+                f.isAprovacao()};
+            tabelaAfastamento.addRow(obj);
+        }
+
+    }
+
     private String tipoAfastamento;
     private String dataInicial;
     private String dataFinal;
@@ -17,6 +48,8 @@ public class AfastamentoVIEW extends javax.swing.JFrame {
 
     public AfastamentoVIEW() {
         initComponents();
+        aprovacao();
+        preencherTabela();
     }
 
     @SuppressWarnings("unchecked")
@@ -36,9 +69,9 @@ public class AfastamentoVIEW extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblAfastamento = new javax.swing.JTable();
         btnVoltar = new javax.swing.JButton();
-        Aprovar = new javax.swing.JButton();
+        btnAprovar = new javax.swing.JButton();
         lblBoasVindas = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -146,15 +179,23 @@ public class AfastamentoVIEW extends javax.swing.JFrame {
         jPanel4.setBackground(new java.awt.Color(204, 204, 204));
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Lista de Afastamentos"));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblAfastamento.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "ID", "Nome", "Tipo Afastamento", "Data de Inicio", "Data Final", "Aprovação"
+                "ID", "ID do Funcionario", "Tipo de afastamento", "Data de Inicio", "Data Final", "Aprovação"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tblAfastamento);
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -178,11 +219,16 @@ public class AfastamentoVIEW extends javax.swing.JFrame {
             }
         });
 
-        Aprovar.setBackground(new java.awt.Color(8, 131, 30));
-        Aprovar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        Aprovar.setForeground(new java.awt.Color(255, 255, 255));
-        Aprovar.setText("Aprovar");
-        Aprovar.setToolTipText("Somente gerente pode aprovar");
+        btnAprovar.setBackground(new java.awt.Color(8, 131, 30));
+        btnAprovar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnAprovar.setForeground(new java.awt.Color(255, 255, 255));
+        btnAprovar.setText("Aprovar");
+        btnAprovar.setToolTipText("Somente gerente pode aprovar");
+        btnAprovar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAprovarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -198,7 +244,7 @@ public class AfastamentoVIEW extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(btnVoltar, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(Aprovar, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnAprovar, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(29, 29, 29))
         );
         jPanel2Layout.setVerticalGroup(
@@ -209,7 +255,7 @@ public class AfastamentoVIEW extends javax.swing.JFrame {
                 .addGap(28, 28, 28)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(Aprovar)
+                .addComponent(btnAprovar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnVoltar)
                 .addContainerGap(56, Short.MAX_VALUE))
@@ -258,26 +304,77 @@ public class AfastamentoVIEW extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVoltarActionPerformed
 
     private void btnSolicitarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSolicitarActionPerformed
+        //Recebe os dados do usuário logado
+        Funcionarios atual = Sessao.getUsuarioLogado();
+        //Cria uma nova instância de afastamento
         Ferias_licencas afastamento = new Ferias_licencas();
         try {
-            //atributos locais que recebem os texto dos campos TextFild
+            //Valida os campos primeiro: vazios ou com formato de data incorreto?
+            if (emptyFilds() == false) {
+                //O método emptyFilds já exibe a mensagem de erro.
+                return;
+            }
+            //Se a validação passou, preenche as variáveis locais
             tipoAfastamento = cmbTipoAfastamento.getSelectedItem().toString();
             dataInicial = txtDataInicial.getText();
             dataFinal = txtDataFinal.getText();
-            if (emptyFilds() == false) {
-                formatarData();
-                afastamento.setAprovacao(false);
+
+            //Tenta formatar as datas. Se falhar, o método formatarData cuidará do erro.
+            if (formatarData()) {
+                // 6. Se a formatação for bem-sucedida, preenche o objeto de afastamento
+                afastamento.setFuncionarios_id(atual.getId());
+                afastamento.setTipo_afastamento(tipoAfastamento);
                 afastamento.setData_incial(dataInicialFormat);
                 afastamento.setData_final(dataFinalFormat);
-                JOptionPane.showMessageDialog(this, "Solicitação concluída");
+                afastamento.setAprovacao(false);
+
+                //Salva o afastamento no banco de dados.
+                dao.salvar(afastamento);
+                //Atualizando tabela
+                preencherTabela();
+                //Limpa os campos após a solicitação ser salva com sucesso
                 limparCampos();
-            }else{
-            
+
+            } else {
+
             }
         } catch (Exception e) {
+            //Trata qualquer outra exceção inesperada
             JOptionPane.showMessageDialog(this, "Erro ao Solicitar Afastamento");
+            e.printStackTrace();
         }
     }//GEN-LAST:event_btnSolicitarActionPerformed
+
+    private void btnAprovarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAprovarActionPerformed
+        //Pega o índice da linha selecionada na tabela
+        int linhaSelecionada = tblAfastamento.getSelectedRow();
+
+        //Verifica se uma linha foi realmente selecionada
+        if (linhaSelecionada == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione uma solicitação para aprovar.");
+            return; // Sai do método se nada foi selecionado
+        }
+
+        //Pega o ID da solicitação da linha selecionada
+        int feriasLicencasId = (int) tblAfastamento.getValueAt(linhaSelecionada, 0);
+
+        //Pergunta para o gerente se ele tem certeza
+        int confirmacao = JOptionPane.showConfirmDialog(this,
+                "Tem certeza que deseja aprovar\n esta solicitação?",
+                "Confirmação de Aprovação",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirmacao == JOptionPane.YES_OPTION) {
+            int status = dao.aprovar(feriasLicencasId);
+
+            if (status > 0) {
+                JOptionPane.showMessageDialog(this, "Solicitação aprovada com sucesso!");
+                preencherTabela();
+            } else {
+                JOptionPane.showMessageDialog(this, "Falha ao aprovar a solicitação.");
+            }
+        }
+    }//GEN-LAST:event_btnAprovarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -316,7 +413,7 @@ public class AfastamentoVIEW extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton Aprovar;
+    private javax.swing.JButton btnAprovar;
     private javax.swing.JButton btnSolicitar;
     private javax.swing.JButton btnVoltar;
     private javax.swing.JComboBox<String> cmbTipoAfastamento;
@@ -327,48 +424,74 @@ public class AfastamentoVIEW extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel lblBoasVindas;
     private javax.swing.JLabel lblDataFinal;
     private javax.swing.JLabel lblDataInicial;
+    private javax.swing.JTable tblAfastamento;
     private javax.swing.JTextField txtDataFinal;
     private javax.swing.JTextField txtDataInicial;
     // End of variables declaration//GEN-END:variables
 
     public boolean emptyFilds() {
-        boolean empty = true;
+        //Verifica se os campos estão vazios
         if (txtDataInicial.getText().isEmpty() || txtDataFinal.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, preencha todos os campos");
-        } else {
-            boolean RegexDataI = dataInicial.matches("[0-9]{2}[/][0-9]{2}[/][0-9]{4}");
-            boolean RegexDataF = dataFinal.matches("[0-9]{2}[/][0-9]{2}[/][0-9]{4}");
-            if (RegexDataI == false) {
-                JOptionPane.showMessageDialog(this, "Preencha o campo de data inicial\n no formato dd/mm/aaaa");
-            } else if (RegexDataF == false) {
-                JOptionPane.showMessageDialog(this, "Preencha o campo de data final\n no formato dd/mm/aaaa");
-            } else {
-                empty = false;
-            }
+            JOptionPane.showMessageDialog(this, "Por favor, preencha todos os campos.");
+            return false; // Retorna falso imediatamente se estiver vazio
         }
-        return empty;
+        //Armazena os valores dos campos
+        String dataInicial = txtDataInicial.getText();
+        String dataFinal = txtDataFinal.getText();
+
+        //Define o padrão de data (Regex)
+        String regexData = "[0-9]{2}/[0-9]{2}/[0-9]{4}";
+
+        //Valida os formatos das datas com Regex
+        if (!dataInicial.matches(regexData)) {
+            JOptionPane.showMessageDialog(this, "Preencha a data inicial no formato\ndd/MM/yyyy");
+            return false; // Retorna falso se o formato estiver errado
+        }
+
+        if (!dataFinal.matches(regexData)) {
+            JOptionPane.showMessageDialog(this, "Preencha a data final no formato\ndd/MM/yyyy");
+            return false; // Retorna falso se o formato estiver errado
+        }
+
+        // Se todos os testes passarem, o método retorna verdadeiro
+        return true;
     }
 
-    public void formatarData() {
+    public boolean formatarData() {
         try {
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+            // O setLenient(false) garante que datas inválidas como "31/02/2023" lancem uma exceção
+            format.setLenient(false);
             dataInicialFormat = format.parse(dataInicial);
             dataFinalFormat = format.parse(dataFinal);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao formatar");
+            return true; // Retorna true se a formatação for bem-sucedida
+        } catch (ParseException e) {
+            // Exibe uma mensagem de erro mais clara
+            JOptionPane.showMessageDialog(this, "Erro de formato de data. Use o formato dd/MM/yyyy.");
+            // A stack trace é útil para depuração
+            e.printStackTrace();
+            return false; // Retorna false em caso de erro
         }
     }
-    
-    public void limparCampos(){
+
+    public void limparCampos() {
         txtDataInicial.setText("");
         txtDataFinal.setText("");
     }
-    
-    public void listarTabela(){
-        
+
+    public void aprovacao() {
+        Funcionarios atual = Sessao.getUsuarioLogado();
+
+        // Se o cargo_id for 2 (Gerente), o botão fica habilitado (padrão)
+        if (atual.getCargo_id() == 2) {
+            this.btnAprovar.setEnabled(true);
+        } else {
+            // Caso contrário, o botão é desabilitado
+            this.btnAprovar.setEnabled(false);
+        }
+
     }
 }

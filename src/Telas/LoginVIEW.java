@@ -1,7 +1,14 @@
 package Telas;
 
+import Classes.Funcionarios;
+import Sistemas.Sessao;
+import conecao.UsuarioDB;
 import javax.swing.JOptionPane;
 
+/**
+ *
+ * @author Arthur
+ */
 class LoginVIEW extends javax.swing.JFrame {
 
     private String login;
@@ -26,22 +33,11 @@ class LoginVIEW extends javax.swing.JFrame {
         btnNovoCadastro = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
         jPanel2.setBackground(new java.awt.Color(19, 63, 146));
-
-        txtEmail.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtEmailActionPerformed(evt);
-            }
-        });
-
-        txtCpf.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtCpfActionPerformed(evt);
-            }
-        });
 
         btnEntrar.setBackground(new java.awt.Color(3, 0, 28));
         btnEntrar.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
@@ -118,6 +114,8 @@ class LoginVIEW extends javax.swing.JFrame {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 635));
+
         btnNovoCadastro.setBackground(new java.awt.Color(204, 204, 204));
         btnNovoCadastro.setForeground(new java.awt.Color(255, 0, 0));
         btnNovoCadastro.setText("Novo Cadastro");
@@ -126,36 +124,10 @@ class LoginVIEW extends javax.swing.JFrame {
                 btnNovoCadastroActionPerformed(evt);
             }
         });
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnNovoCadastro)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 635, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 53, Short.MAX_VALUE)
-                .addComponent(btnNovoCadastro)
-                .addContainerGap())
-        );
+        getContentPane().add(btnNovoCadastro, new org.netbeans.lib.awtextra.AbsoluteConstraints(1161, 688, -1, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void txtEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEmailActionPerformed
-
-    }//GEN-LAST:event_txtEmailActionPerformed
-
-    private void txtCpfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCpfActionPerformed
-
-    }//GEN-LAST:event_txtCpfActionPerformed
 
     private void btnNovoCadastroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoCadastroActionPerformed
         NovoCadastroVIEW novoCadastroVIEW = new NovoCadastroVIEW();
@@ -163,14 +135,25 @@ class LoginVIEW extends javax.swing.JFrame {
     }//GEN-LAST:event_btnNovoCadastroActionPerformed
 
     private void btnEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarActionPerformed
-
-        if (txtEmail.getText().isEmpty() || txtCpf.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Preencha os campos de login e senha");
+        login = txtEmail.getText().trim();
+        senha = txtCpf.getText().trim();
+        if (emptyFilds() == true) {
+            
         } else {
-            Tela_inicialVIEW tela_inicialVIEW = new Tela_inicialVIEW();
-            login = txtEmail.getText();
-            senha = txtCpf.getText();
-            tela_inicialVIEW.setVisible(true);
+            Funcionarios f = new Funcionarios();
+            f.setEmail(login);
+            f.setCpf(senha);
+
+            f = UsuarioDB.validarUsuarioSeguro(f);
+            if (f != null) {
+                Sessao.setUsuarioLogado(f);//Armazena os dados de um funcionario na classe Sessao
+                Tela_inicialVIEW tela_inicialVIEW = new Tela_inicialVIEW();
+                tela_inicialVIEW.setVisible(true);
+                JOptionPane.showMessageDialog(null, "Bem-vindo(a) \n" + f.getNome());
+            } else {
+                JOptionPane.showMessageDialog(this, "Erro de autenticação\nverifique se os dados estão corretos.");
+            }
+
             txtEmail.setText("");
             txtCpf.setText("");
         }
@@ -223,4 +206,22 @@ class LoginVIEW extends javax.swing.JFrame {
     private javax.swing.JTextField txtCpf;
     private javax.swing.JTextField txtEmail;
     // End of variables declaration//GEN-END:variables
+
+    public boolean emptyFilds() {
+        boolean empty = true;
+        if (txtEmail.getText().isEmpty() || txtCpf.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Preencha os campos de login e senha");
+        } else {
+            boolean RegexEmail = login.matches("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
+            boolean RegexCpf = senha.matches("^\\d{11}$");
+            if (RegexEmail == false) {
+                JOptionPane.showMessageDialog(this, "Digite um e-mail válido(já cadastrado)\n (ex: exemplo@dominio.com)");
+            } else if (RegexCpf == false) {
+                JOptionPane.showMessageDialog(this, "Preencha o CPF com\n(11 dígitos numéricos)");
+            } else {
+                empty = false;
+            }
+        }
+        return empty;
+    }
 }

@@ -1,15 +1,42 @@
 package Telas;
 
+import Classes.Cargos;
+import Sistemas.CargosDAO;
+import java.util.List;
 import javax.swing.JOptionPane;
-
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 public class CargoFuncaoVIEW extends javax.swing.JFrame {
 
+    Cargos cargos = new Cargos();
+    CargosDAO dao = new CargosDAO();
+
+    public void preencherTabela() {
+
+        List<Cargos> listarCargos = dao.getFilme();
+
+        DefaultTableModel tabelaCargo = (DefaultTableModel) tblCargoF.getModel();
+        tabelaCargo.setNumRows(0);
+
+        tblCargoF.setRowSorter(new TableRowSorter(tabelaCargo));
+
+        for (Cargos c : listarCargos) {
+
+            Object[] obj = new Object[]{
+                c.getId(),
+                c.getCargo(),
+                c.getFuncao(),
+                c.getNivel_acesso(),};
+            tabelaCargo.addRow(obj);
+        }
+
+    }
 
     public CargoFuncaoVIEW() {
         initComponents();
+        preencherTabela();
     }
-
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -85,7 +112,7 @@ public class CargoFuncaoVIEW extends javax.swing.JFrame {
 
             },
             new String [] {
-                "ID", "Nome", "Cargo"
+                "ID", "Cargo", "Funçãa", "Nivel de acesso"
             }
         ));
         jScrollPane1.setViewportView(tblCargoF);
@@ -158,8 +185,26 @@ public class CargoFuncaoVIEW extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVoltarActionPerformed
 
     private void btnPesquisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPesquisarActionPerformed
-        if(txtPesquisarCargo.getText().isEmpty()){
+        String textoPesquisa = txtPesquisarCargo.getText();
+
+        DefaultTableModel model = (DefaultTableModel) tblCargoF.getModel();
+        model.setRowCount(0);
+
+        if (textoPesquisa.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Preencha o campo de pesquisa");
+            preencherTabela();
+        } else {
+            Cargos c = dao.pesquisarFuncionarios(textoPesquisa);
+            if (c != null) {
+                model.addRow(new Object[]{
+                    c.getId(),
+                    c.getCargo(),
+                    c.getFuncao(),
+                    c.getNivel_acesso()});
+            } else {
+                // Exibe uma mensagem se o cargo não for encontrado
+                JOptionPane.showMessageDialog(this, "Cargo não encontrado.");
+            }
         }
     }//GEN-LAST:event_btnPesquisarActionPerformed
 
