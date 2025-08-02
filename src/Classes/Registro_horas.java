@@ -1,0 +1,56 @@
+package Classes;
+
+import java.time.LocalTime;
+import java.util.Date;
+
+public class Registro_horas {
+    private int id; 
+    private int funcionaior_id;
+    private Date data_registro;
+    private LocalTime Horario_entrada;
+    private LocalTime Horario_saida;
+
+    
+    
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getFuncionaior_id() {
+        return funcionaior_id;
+    }
+
+    public void setFuncionaior_id(int funcionaior_id) {
+        this.funcionaior_id = funcionaior_id;
+    }
+
+    public Date getData_registro() {
+        return data_registro;
+    }
+
+    public void setData_registro(Date data_registro) {
+        this.data_registro = data_registro;
+    }
+
+    public LocalTime getHorario_entrada() {
+        return Horario_entrada;
+    }
+
+    public void setHorario_entrada(LocalTime Horario_entrada) {
+        this.Horario_entrada = Horario_entrada;
+    }
+
+    public LocalTime getHorario_saida() {
+        return Horario_saida;
+    }
+
+    public void setHorario_saida(LocalTime Horario_saida) {
+        this.Horario_saida = Horario_saida;
+    }
+    
+    
+}
