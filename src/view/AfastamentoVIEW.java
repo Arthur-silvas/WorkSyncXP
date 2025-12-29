@@ -3,7 +3,7 @@ package view;
 import model.Ferias_licencas;
 import model.Funcionarios;
 import dao.Ferias_licencasDAO;
-import dao.Sessao;
+import infra.Sessao;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;

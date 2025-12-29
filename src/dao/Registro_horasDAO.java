@@ -1,7 +1,7 @@
 package dao;
 
 import model.Registro_horas;
-import infra.db.Conexao;
+import infra.Conexao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

@@ -1,8 +1,8 @@
 package view;
 
 import model.Funcionarios;
-import dao.Sessao;
-import infra.db.UsuarioDB;
+import infra.Sessao;
+import infra.UsuarioDB;
 import javax.swing.JOptionPane;
 
 /**

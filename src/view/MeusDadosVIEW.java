@@ -3,7 +3,7 @@ package view;
 
 import model.Funcionarios;
 import dao.FuncionariosDAO;
-import dao.Sessao;
+import infra.Sessao;
 
 /**
  *

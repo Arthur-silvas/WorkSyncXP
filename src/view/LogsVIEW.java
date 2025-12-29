@@ -4,7 +4,7 @@ package view;
 import model.Funcionarios;
 import model.Logs;
 import dao.LogsDAO;
-import dao.Sessao;
+import infra.Sessao;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;

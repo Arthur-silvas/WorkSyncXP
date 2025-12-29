@@ -1,4 +1,4 @@
-package infra.db;
+package infra;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

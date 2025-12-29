@@ -1,5 +1,5 @@
 
-package dao;
+package infra;
 
 import model.Funcionarios;
 

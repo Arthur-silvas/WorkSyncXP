@@ -2,7 +2,7 @@ package dao;
 
 import model.Cargos;
 import model.Funcionarios;
-import infra.db.Conexao;
+import infra.Conexao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

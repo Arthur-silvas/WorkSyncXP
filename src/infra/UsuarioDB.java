@@ -1,4 +1,4 @@
-package infra.db;
+package infra;
 
 import model.Funcionarios;
 import java.sql.Connection;

@@ -1,7 +1,7 @@
 package dao;
 
 import model.Ferias_licencas;
-import infra.db.Conexao;
+import infra.Conexao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

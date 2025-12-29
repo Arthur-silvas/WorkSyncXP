@@ -3,7 +3,7 @@ package view;
 import model.Funcionarios;
 import model.Relatorios;
 import dao.RelatoriosDAO;
-import dao.Sessao;
+import infra.Sessao;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;

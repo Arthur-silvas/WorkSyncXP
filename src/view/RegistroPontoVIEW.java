@@ -3,14 +3,12 @@ package view;
 import model.Funcionarios;
 import model.Registro_horas;
 import dao.Registro_horasDAO;
-import dao.Sessao;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
+import service.registroHorasService;
+import infra.Sessao;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import javax.swing.JOptionPane;
 
@@ -23,16 +21,15 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
     Registro_horas registroHoras = new Registro_horas();
     Registro_horasDAO dao = new Registro_horasDAO();
     Funcionarios atual = Sessao.getUsuarioLogado();
+    registroHorasService registro_horas_service = new registroHorasService();
 
-    private LocalDateTime agora;
     private LocalTime horarioIncial;
     private LocalTime horarioFinal;
-    private LocalTime horasTrabalhadas;
 
     public RegistroPontoVIEW() {
         initComponents();
-        dataHoraAtual();
-        horarioAtualSistema();
+        lblDataHoraAtual.setText(dataHoraAtual());
+        txtHorarioEnt.setText(formataTempoString());
     }
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -229,35 +226,35 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
 
     private void btnFinalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizarActionPerformed
         // Pega a hora atual do sistema
-        LocalTime horarioFinal = LocalTime.now();
+        horarioFinal = LocalTime.now();
 
         // Atualiza o campo txtHorarioSai com a hora atual formatada
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         txtHorarioSai.setText(horarioFinal.format(formatter));
 
         // Pega o horário inicial do campo txtHorarioEnt
-        LocalTime horarioInicial;
         try {
-            horarioInicial = LocalTime.parse(txtHorarioEnt.getText(), formatter);
+            horarioIncial = registro_horas_service.formataTempo(txtHorarioEnt.getText());
         } catch (DateTimeParseException e) {
             JOptionPane.showMessageDialog(null, "Formato do horário inválido em Horário Entrada.");
             return;
         }
 
-        // Calcula a duração
-        Duration duracao = Duration.between(horarioInicial, horarioFinal);
-        long horas = duracao.toHours();
-        long minutos = duracao.toMinutesPart();
-        long segundos = duracao.toSecondsPart();
-
-        String tempoTotal = String.format("%02d:%02d:%02d", horas, minutos, segundos);
+        // Calcula a duração    
+        String tempoTotal = registro_horas_service.calTempoCorrido(horarioIncial, horarioFinal);
         txtHorasTrabalhadas.setText(tempoTotal);
 
-        // Setando dados no objeto
-        registroHoras.setFuncionario_id(atual.getId());
-        registroHoras.setData_registro(dataAtualSistema());
-        registroHoras.setHorario_entrada(horarioInicial);
-        registroHoras.setHorario_saida(horarioFinal);
+        //definido dados no model
+        try {
+            
+            registroHoras.setFuncionario_id(atual.getId());
+            registroHoras.setData_registro(dataAtualSistema());
+            registroHoras.setHorario_entrada(horarioIncial);
+            registroHoras.setHorario_saida(horarioFinal);
+            
+        } catch (DateTimeParseException e) {
+            JOptionPane.showMessageDialog(null, "Formato do horário inválido. Use HH:mm:ss.");
+        }
 
         // Salva no banco
         dao.salvar(registroHoras);
@@ -319,35 +316,22 @@ public class RegistroPontoVIEW extends javax.swing.JFrame {
     public Date dataAtualSistema() {
         return new Date();
     }
-
-    //recebe o horário atual da máquina do usuário
-    public void horarioAtualSistema() {
-        LocalTime horaAtual = LocalTime.now();
-        String horaFormatada = horaAtual.toString().substring(0, 8);
-        txtHorarioEnt.setText(horaFormatada);
-    }
-
-    //Set nos atributos horario de entrada/saída
-    public void conversaoDeTipos() {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-            LocalTime horarioIncial = LocalTime.parse(txtHorarioEnt.getText(), formatter);
-            LocalTime horarioFinal = LocalTime.parse(txtHorarioSai.getText(), formatter);
-
-            registroHoras.setHorario_entrada(horarioIncial);
-            registroHoras.setHorario_saida(horarioFinal);
-
-        } catch (DateTimeParseException e) {
-            JOptionPane.showMessageDialog(null, "Formato do horário inválido. Use HH:mm:ss.");
-        }
-    }
-
+    
     //recebe a data e o horário atual da máquina do usuário
-    public void dataHoraAtual() {
-        agora = LocalDateTime.now();
+    public String dataHoraAtual() {
+        LocalDateTime agora = LocalDateTime.now();
+        
         //formatando a saída data e horário
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String dataHoraFormatada = agora.format(formatter);
-        lblDataHoraAtual.setText(dataHoraFormatada);
+        return dataHoraFormatada;
     }
+    
+    //recebe o horário atual da máquina do usuário  
+    public String formataTempoString(){
+        LocalTime horaAtual = LocalTime.now();
+        
+        String horaFormatada = horaAtual.toString().substring(0, 8);
+        return horaFormatada;
+    }   
 }
