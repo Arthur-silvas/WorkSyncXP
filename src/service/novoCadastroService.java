@@ -21,13 +21,13 @@ public class novoCadastroService {
                 || email.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Preencha todos os campos para\nfinalizar");
         } else {
-            boolean RegexData = dataNascimento.matches("[0-9]{2}[/][0-9]{2}[/][0-9]{4}");
+            boolean RegexData = dataNascimento.matches("[0-9]{4}[/][0-9]{2}[/][0-9]{2}");
             boolean RegexRg = rg.matches("^\\d{9}$");
             boolean RegexCpf = cpf.matches("^\\d{11}$");
             boolean RegexTel = tel.matches("^\\d{5}-\\d{4}$");
 
             if (RegexData == false) {
-                JOptionPane.showMessageDialog(null, "Preencha a data no formato \n(dd/mm/yyyy)");
+                JOptionPane.showMessageDialog(null, "Preencha a data no formato \n(yyyy/mm/dd)");
             } else if (RegexRg == false) {
                 JOptionPane.showMessageDialog(null, "Preencha o RG com\n(9 dígitos numéricos)");
             } else if (RegexCpf == false) {
