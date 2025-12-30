@@ -4,6 +4,7 @@ import model.Cargos;
 import model.Funcionarios;
 import dao.FuncionariosDAO;
 import javax.swing.JOptionPane;
+import service.novoCadastroService;
 
 /**
  *
@@ -13,6 +14,7 @@ public class NovoCadastroVIEW extends javax.swing.JFrame {
 
     Funcionarios funcionario = new Funcionarios();
     FuncionariosDAO dao = new FuncionariosDAO();
+    novoCadastroService novoCadastroService = new novoCadastroService(); 
 
     private Funcionarios funcionarioEmEdicao; // Variável para guardar o objeto a ser editado
     private String nome;
@@ -310,7 +312,7 @@ public class NovoCadastroVIEW extends javax.swing.JFrame {
                 cargo_id = selecionado.getId();
             }
 
-            if (EmptyFilds() == false) {
+            if (novoCadastroService.EmptyFilds(nome, dataNascimento, rg, cpf, tel, endereco, email) == false) {
 
                 // Se a tela estiver em modo de edição
                 if (this.funcionarioEmEdicao != null) {
@@ -410,39 +412,6 @@ public class NovoCadastroVIEW extends javax.swing.JFrame {
     private javax.swing.JTextField txtRg;
     private javax.swing.JTextField txtTelefone;
     // End of variables declaration//GEN-END:variables
-
-    public boolean EmptyFilds() {
-        boolean empty = true;
-
-        if (nome.isEmpty()
-                || dataNascimento.isEmpty()
-                || rg.isEmpty()
-                || cpf.isEmpty()
-                || tel.isEmpty()
-                || endereco.isEmpty()
-                || email.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Preencha todos os campos para\nfinalizar");
-        } else {
-            boolean RegexData = dataNascimento.matches("[0-9]{4}[/][0-9]{2}[/][0-9]{2}");
-            boolean RegexRg = rg.matches("^\\d{9}$");
-            boolean RegexCpf = cpf.matches("^\\d{11}$");
-            boolean RegexTel = tel.matches("^\\d{5}-\\d{4}$");
-
-            if (RegexData == false) {
-                JOptionPane.showMessageDialog(this, "Preencha a data no formato \n(aaaa/mm/dd)");
-            } else if (RegexRg == false) {
-                JOptionPane.showMessageDialog(this, "Preencha o RG com\n(9 dígitos numéricos)");
-            } else if (RegexCpf == false) {
-                JOptionPane.showMessageDialog(this, "Preencha o CPF com\n(11 dígitos numéricos)");
-            } else if (RegexTel == false) {
-                JOptionPane.showMessageDialog(this, "Preencha o telefone no formato \n(XXXXX-XXXX)");
-            } else {
-
-                empty = false;
-            }
-        }
-        return empty;
-    }
 
     public void limparCampos() {
         txtNome.setText("");
