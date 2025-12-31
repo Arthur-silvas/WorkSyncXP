@@ -4,13 +4,16 @@ import model.Funcionarios;
 import infra.Sessao;
 import infra.UsuarioDB;
 import javax.swing.JOptionPane;
+import service.loginService;
 
 /**
  *
  * @author Arthur
  */
 class LoginVIEW extends javax.swing.JFrame {
-
+    
+    loginService loginservice = new loginService(); 
+    
     private String login;
     private String senha;
 
@@ -137,7 +140,7 @@ class LoginVIEW extends javax.swing.JFrame {
     private void btnEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarActionPerformed
         login = txtEmail.getText().trim();
         senha = txtCpf.getText().trim();
-        if (emptyFilds() == true) {
+        if (loginservice.emptyFilds(txtEmail, txtCpf) == true) {
             
         } else {
             Funcionarios f = new Funcionarios();
@@ -207,21 +210,4 @@ class LoginVIEW extends javax.swing.JFrame {
     private javax.swing.JTextField txtEmail;
     // End of variables declaration//GEN-END:variables
 
-    public boolean emptyFilds() {
-        boolean empty = true;
-        if (txtEmail.getText().isEmpty() || txtCpf.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Preencha os campos de login e senha");
-        } else {
-            boolean RegexEmail = login.matches("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$");
-            boolean RegexCpf = senha.matches("^\\d{11}$");
-            if (RegexEmail == false) {
-                JOptionPane.showMessageDialog(this, "Digite um e-mail válido(já cadastrado)\n (ex: exemplo@dominio.com)");
-            } else if (RegexCpf == false) {
-                JOptionPane.showMessageDialog(this, "Preencha o CPF com\n(11 dígitos numéricos)");
-            } else {
-                empty = false;
-            }
-        }
-        return empty;
-    }
 }
