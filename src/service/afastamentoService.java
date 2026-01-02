@@ -1,7 +1,6 @@
 
 package service;
 
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 /**
@@ -13,10 +12,15 @@ public class afastamentoService {
     public boolean emptyFilds(JTextField txtDataFinal, JTextField txtDataInicial) {
         //Verifica se os campos estão vazios
         if (txtDataInicial.getText().isEmpty() || txtDataFinal.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Por favor, preencha todos os campos.");
-            return false; // Retorna falso imediatamente se estiver vazio
+            return false;
+        }else{
+            return true; // Se todos os testes passarem, o método retorna verdadeiro
         }
-        //Armazena os valores dos campos
+        
+    }
+    
+    public String regexDate(JTextField txtDataFinal, JTextField txtDataInicial){
+        //Armazena os valores dos campos como Texto
         String dataInicial = txtDataInicial.getText();
         String dataFinal = txtDataFinal.getText();
 
@@ -25,17 +29,15 @@ public class afastamentoService {
 
         //Valida os formatos das datas com Regex
         if (!dataInicial.matches(regexData)) {
-            JOptionPane.showMessageDialog(null, "Preencha a data inicial no formato\ndd/MM/yyyy");
-            return false; // Retorna falso se o formato estiver errado
+            return "erroDateInital"; //Retorna uma String personalizada para indicar qual erro está sendo referenciado
         }
 
         if (!dataFinal.matches(regexData)) {
-            JOptionPane.showMessageDialog(null, "Preencha a data final no formato\ndd/MM/yyyy");
-            return false; // Retorna falso se o formato estiver errado
-        }
-
-        // Se todos os testes passarem, o método retorna verdadeiro
-        return true;
+            return "erroDateEnd"; //Retorna uma String personalizada para indicar qual erro está sendo referenciado
+            
+        }else{
+            return "Ok";
+        }    
     }
     
 }

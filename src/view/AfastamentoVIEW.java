@@ -311,11 +311,16 @@ public class AfastamentoVIEW extends javax.swing.JFrame {
         //Cria uma nova instância de afastamento
         Ferias_licencas afastamento = new Ferias_licencas();
         try {
+            
             //Valida os campos primeiro: vazios ou com formato de data incorreto?
             if (afastamentoService.emptyFilds(txtDataFinal, txtDataInicial) == false) {
-                //O método emptyFilds já exibe a mensagem de erro.
+                JOptionPane.showMessageDialog(null, "Por favor, preencha todos os campos.");
+                return;
+            }else if(validacaoErroRegex(afastamentoService.regexDate(txtDataFinal, txtDataInicial)) == false){
+                //Método validacaoErroRegex gera mensagens de erro
                 return;
             }
+            
             //Se a validação passou, preenche as variáveis locais
             tipoAfastamento = cmbTipoAfastamento.getSelectedItem().toString();
             dataInicial = txtDataInicial.getText();
@@ -469,5 +474,21 @@ public class AfastamentoVIEW extends javax.swing.JFrame {
             this.btnAprovar.setEnabled(false);
         }
 
+    }
+    
+    //Método que captura o erro de regex vindo da classe afastamentoService e retorna a mensagem personalizada
+    public boolean validacaoErroRegex(String erroRegex){
+        
+        if(erroRegex.equals("erroDateInital")){
+            JOptionPane.showMessageDialog(null, "Preencha a data inicial no formato\ndd/MM/yyyy");
+            return false;
+            
+        }else if(erroRegex.equals("erroDateEnd")){
+            JOptionPane.showMessageDialog(null, "Preencha a data final no formato\ndd/MM/yyyy");
+            return false;
+            
+        }else{
+            return true; 
+        }
     }
 }
