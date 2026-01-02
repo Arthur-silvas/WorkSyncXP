@@ -140,9 +140,14 @@ class LoginVIEW extends javax.swing.JFrame {
     private void btnEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarActionPerformed
         login = txtEmail.getText().trim();
         senha = txtCpf.getText().trim();
-        if (loginservice.emptyFilds(txtEmail, txtCpf) == true) {
+        
+        if (loginservice.emptyFilds(txtEmail, txtCpf) == false) {
+            JOptionPane.showMessageDialog(null, "Preencha os campos de login e senha");
             
-        } else {
+        }else if(validacaoErroRegex(loginservice.regexDate(txtEmail, txtCpf))){
+            return;
+        
+        }else {
             Funcionarios f = new Funcionarios();
             f.setEmail(login);
             f.setCpf(senha);
@@ -209,5 +214,16 @@ class LoginVIEW extends javax.swing.JFrame {
     private javax.swing.JTextField txtCpf;
     private javax.swing.JTextField txtEmail;
     // End of variables declaration//GEN-END:variables
-
+    
+    public boolean validacaoErroRegex(String erroRegex){
+        if(erroRegex.equals("erroLogin")){
+            JOptionPane.showMessageDialog(null, "Digite um e-mail válido (já cadastrado)\n (ex: exemplo@dominio.com)");
+            return false;
+        }else if(erroRegex.equals("erroPassword")){
+            JOptionPane.showMessageDialog(null, "Preencha o CPF com\n(11 dígitos numéricos)");
+            return false;
+        }else{
+            return true;
+        }
+    }
 }
