@@ -1,7 +1,7 @@
 
 package service;
 
-import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
 /**
  *
@@ -9,8 +9,8 @@ import javax.swing.JOptionPane;
  */
 public class novoCadastroService {
     
-        public boolean EmptyFilds(String nome, String dataNascimento, String rg, String cpf, String tel, String endereco, String email) {
-        boolean empty = true;
+        public boolean EmptyFilds(String nome, String dataNascimento, String rg, String cpf, String tel, String 
+endereco, String email) {
 
         if (nome.isEmpty()
                 || dataNascimento.isEmpty()
@@ -19,27 +19,47 @@ public class novoCadastroService {
                 || tel.isEmpty()
                 || endereco.isEmpty()
                 || email.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Preencha todos os campos para\nfinalizar");
+            
+            return false; 
+            
         } else {
-            boolean RegexData = dataNascimento.matches("[0-9]{4}[/][0-9]{2}[/][0-9]{2}");
-            boolean RegexRg = rg.matches("^\\d{9}$");
-            boolean RegexCpf = cpf.matches("^\\d{11}$");
-            boolean RegexTel = tel.matches("^\\d{5}-\\d{4}$");
+
+            return true;
+        }
+    }
+        
+        public String regexData(JTextField Data, JTextField Rg, JTextField Cpf,JTextField Tel){
+            
+            String dataNascimento = Data.getText();
+            String rg = Rg.getText(); 
+            String cpf = Cpf.getText();
+            String tel = Tel.getText();
+            
+            String dataNascimentoRegexModel = "[0-9]{4}[/][0-9]{2}[/][0-9]{2}";
+            String rgRegexModel = "^\\d{9}$";
+            String cpfRegexModel = "^\\d{11}$";
+            String telRegexModel = "^\\d{5}-\\d{4}$";
+            
+            boolean RegexData = dataNascimento.matches(dataNascimentoRegexModel);
+            boolean RegexRg = rg.matches(rgRegexModel);
+            boolean RegexCpf = cpf.matches(cpfRegexModel);
+            boolean RegexTel = tel.matches(telRegexModel);
 
             if (RegexData == false) {
-                JOptionPane.showMessageDialog(null, "Preencha a data no formato \n(yyyy/mm/dd)");
+                
+                return "erroData";
             } else if (RegexRg == false) {
-                JOptionPane.showMessageDialog(null, "Preencha o RG com\n(9 dígitos numéricos)");
+                
+                return "erroRg";
             } else if (RegexCpf == false) {
-                JOptionPane.showMessageDialog(null, "Preencha o CPF com\n(11 dígitos numéricos)");
+                
+                return "erroCpf";
             } else if (RegexTel == false) {
-                JOptionPane.showMessageDialog(null, "Preencha o telefone no formato \n(XXXXX-XXXX)");
+                
+                return "erroTel";
             } else {
-
-                empty = false;
+                return "Ok";
             }
         }
-        return empty;
-    }
     
 }

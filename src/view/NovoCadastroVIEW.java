@@ -313,8 +313,13 @@ public class NovoCadastroVIEW extends javax.swing.JFrame {
             }
 
             if (novoCadastroService.EmptyFilds(nome, dataNascimento, rg, cpf, tel, endereco, email) == false) {
-
-                // Se a tela estiver em modo de edição
+                JOptionPane.showMessageDialog(null, "Preencha todos os campos para\nfinalizar");
+                return;
+            
+            }else if(validacaoErroRegex(novoCadastroService.regexData(txtRg, txtRg, txtCpf, txtRg)) == false){
+                return;            
+            
+            }else{// Se a tela estiver em modo de edição
                 if (this.funcionarioEmEdicao != null) {
                     this.funcionarioEmEdicao.setNome(nome);
                     this.funcionarioEmEdicao.setDataNasc(dataNascimento);
@@ -422,5 +427,29 @@ public class NovoCadastroVIEW extends javax.swing.JFrame {
         txtTelefone.setText("");
         txtEndereco.setText("");
 
+    }
+    
+    public boolean validacaoErroRegex(String erroRegex){
+        if(erroRegex.equals("erroData")){
+            JOptionPane.showMessageDialog(null, "Preencha a data no formato \n(yyyy/mm/dd)");
+            return false;
+        
+        }else if(erroRegex.equals("erroRg")){
+            JOptionPane.showMessageDialog(null, "Preencha o RG com\n(9 dígitos numéricos)");
+            return false;
+        
+        }else if(erroRegex.equals("erroCpf")){
+            JOptionPane.showMessageDialog(null, "Preencha o CPF com\n(11 dígitos numéricos)");
+            return false;
+        
+        }else if(erroRegex.equals("erroTel")){
+            JOptionPane.showMessageDialog(null, "Preencha o telefone no formato \n(XXXXX-XXXX)");
+            return false;
+        
+        }else{
+            
+            return true;
+            
+        }
     }
 }
